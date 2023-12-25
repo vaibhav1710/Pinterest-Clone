@@ -21,9 +21,19 @@ router.get('/register', function(req, res, next) {
 router.get('/profile', isLoggedIn , async function(req, res, next) {
   const user = await userModel
                      .findOne({username:req.session.passport.user})
-                     .populate("boards")
+                     .populate({
+                      path:"boards",
+                      model:"board",
+                      populate:{
+                        path:"posts",
+                        model:"post"
+                      }
+                     })
                      .populate("posts");
-                  
+                     
+   
+   console.log(user);                   
+
   res.render('profile',{user, nav:true});
 });
 

@@ -49,6 +49,7 @@
       <a href="/board/<%= elem._id %>">
           <div class=" w-full h-40 rounded-lg overflow-hidden bg-zinc-700">
             <% if (elem.posts.length > 0) { %>
+              <% console.log(elem.posts[0]) %>
               <img class="w-full h-full object-cover" src="/images/uploads/<%= elem.posts[0].image %>" alt="">
             <% } else { %>
               <!-- Display a fallback image when no posts are available -->
