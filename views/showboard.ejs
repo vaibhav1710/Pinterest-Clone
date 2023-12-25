@@ -1,0 +1,23 @@
+<% include ./partials/header.ejs %>
+
+
+
+<div class="bg-zinc-800 flex flex-col items-center w-full min-h-screen">
+<h1 class=" text-4xl text-white" ><%=boards.title%></h1>
+<a href="/addboardPin/<%=boards._id%>" class="px-10 py-2 rounded-lg text-white bg-red-700 text-xs font-semibold mt-10 mr-2">Add New Pin</a>
+
+<div class="cards text-white m-auto p-10 flex flex-wrap gap-10">
+    <% boards.posts.forEach(function(elem){ %>
+      <div class="w-32 card">
+      <a href="/post/<%= elem._id %>">
+          <div class=" w-full h-40 rounded-lg overflow-hidden bg-zinc-700">
+              <img class="w-full h-full object-cover" src="/images/uploads/<%= elem.image %>" alt="">
+          </div>
+      </a>
+          <h5 class="mt-2 text-sm"><%= elem.title %></h5>
+      </div>
+     <%})%> 
+  </div>
+</div>
+
+<% include ./partials/footer.ejs %>

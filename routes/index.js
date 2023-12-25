@@ -21,7 +21,8 @@ router.get('/register', function(req, res, next) {
 router.get('/profile', isLoggedIn , async function(req, res, next) {
   const user = await userModel
                      .findOne({username:req.session.passport.user})
-                     .populate("boards");
+                     .populate("boards")
+                     .populate("posts");
                   
   res.render('profile',{user, nav:true});
 });
@@ -42,6 +43,8 @@ router.get('/feed', isLoggedIn , async function(req, res, next) {
 
 
 
+
+
 router.get('/addPin', isLoggedIn , async function(req, res, next) {
   const user = await userModel.findOne({username:req.session.passport.user})
     res.render('addPin',{user, nav:true});
@@ -54,11 +57,12 @@ router.get('/addBoard', isLoggedIn , async function(req, res, next) {
 
 router.post("/createboard", isLoggedIn, async function(req,res,next){
   const user = await userModel.findOne({username:req.session.passport.user});
-  console.log(user);
+ 
   const board = await boardModel.create({
     title: req.body.title,
   });
-  console.log(board); 
+
+ 
   user.boards.push(board._id);
   await user.save();
   res.redirect("/profile");
@@ -80,6 +84,46 @@ const post = await  postModel.create({
    await user.save();
    res.redirect("/profile");
 });
+
+
+router.get("/board/:id" , async function(req,res,next){
+  const boardId = req.params.id;
+  const boards = await boardModel.findOne({_id:boardId}).populate("posts");
+
+  console.log(boards);
+  res.render("showboard", {nav:true,boards})
+})
+
+router.get('/addboardPin/:id', isLoggedIn , upload.single("postimage")  , async function(req, res, next) {
+  const boardId = req.params.id;
+  const user = await userModel.findOne({username:req.session.passport.user})
+  const board = await boardModel.findOne({_id:boardId});
+  res.render('addPinToBoard',{user, board ,nav:true});
+});
+
+router.post('/createboardpin/:id', isLoggedIn , upload.single("postimage")  , async function(req, res, next) {
+const boardId = req.params.id;  
+const board = await boardModel.findOne({_id:boardId}); 
+const user = await userModel.findOne({username:req.session.passport.user})
+const post = await  postModel.create({
+     user: user._id,
+     title:req.body.title,
+     description:req.body.description,
+     tags: req.body.tags,
+     image:req.file.filename,
+   });
+ 
+   user.posts.push(post._id);
+   board.posts.push(post._id);
+
+   await user.save();
+   await board.save();
+   res.redirect(`/board/${boardId}`);
+});
+
+
+
+
 
 
 
