@@ -1,6 +1,6 @@
 <% include ./partials/header.ejs  %>
 
-<div class="w-full min-h-screen p-6 bg-zinc-800">
+<div class="w-full min-h-screen p-6 bg-zinc-900">
 <div class="max-w-2xl mx-auto  p-6 bg-white shadow-md rounded-md">
     <div class="relative h-[50vh] mb-6 ">
       <img class="w-full h-full bg-zinc-700 object-cover rounded-md" src="/images/uploads/<%= post.image %>" alt="Post Image">
@@ -17,11 +17,23 @@
       </div>
       <div class="flex justify-between items-center">
         <p class="text-gray-500">Uploaded by @<%= post.user.username %></p>
+      <div class="flex justify-center items-center">
         <button class="bg-red-700 text-white py-2 px-4 rounded-full">Save</button>
+        <% if(user._id == post.user.id) {%>
+        <!-- <a class="delete-icon" href="/post/delete/<%=post._id%>"> <i class="ri-delete-bin-fill text-black p-2"></i> </a> -->
+        <form action="/delete/<%=post._id%>?_method=delete" method="POST">
+            <button class="py-2 px-4 m-2 bg-red-700 text-white rounded-full">Delete</button>
+        </form>
+        <%}%>
+      </div>
       </div>
     <!-- Add more details or actions as needed -->
   </div>
 </div>
+
+<script>
+
+</script>
   
 
 <% include ./partials/footer.ejs  %>

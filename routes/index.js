@@ -32,7 +32,7 @@ router.get('/profile', isLoggedIn , async function(req, res, next) {
                      .populate("posts");
                      
    
-   console.log(user);                   
+                     
 
   res.render('profile',{user, nav:true});
 });
@@ -100,9 +100,11 @@ router.get("/board/:id" , async function(req,res,next){
   const boardId = req.params.id;
   const boards = await boardModel.findOne({_id:boardId}).populate("posts");
 
-  console.log(boards);
+ 
   res.render("showboard", {nav:true,boards})
 })
+
+
 
 router.get('/addboardPin/:id', isLoggedIn , upload.single("postimage")  , async function(req, res, next) {
   const boardId = req.params.id;
@@ -110,6 +112,8 @@ router.get('/addboardPin/:id', isLoggedIn , upload.single("postimage")  , async 
   const board = await boardModel.findOne({_id:boardId});
   res.render('addPinToBoard',{user, board ,nav:true});
 });
+
+
 
 router.post('/createboardpin/:id', isLoggedIn , upload.single("postimage")  , async function(req, res, next) {
 const boardId = req.params.id;  
@@ -132,13 +136,16 @@ const post = await  postModel.create({
 });
 
 
+router.get("/edit", isLoggedIn ,async function(req,res,next){
+  res.render("change", {nav:true});
+});
 
 
 
 
 
 router.get("/post/:id", isLoggedIn, async function(req,res,next){
-  
+  const user = await userModel.findOne({username:req.session.passport.user})
   const postId = req.params.id;
   const post = await postModel
   .findOne({ _id: postId })
@@ -150,7 +157,7 @@ router.get("/post/:id", isLoggedIn, async function(req,res,next){
     res.status(404).send('Post not found');
     return;
   }
-   res.render("showpost", {nav:true,post});
+   res.render("showpost", {nav:true,post,user});
 });
 
 
@@ -169,6 +176,52 @@ const post = await  postModel.create({
    await user.save();
    res.redirect("/profile");
 });
+
+
+router.delete("/delete/:id", isLoggedIn ,async (req,res) => {
+ 
+  const postid = req.params.id;
+   const post = await postModel.findById(postid);
+   const user = await userModel.findOne({username:req.session.passport.user});
+  
+   console.log(post);
+   console.log(user);
+ 
+   user.posts.pull(postid);
+   await user.save();
+   await postModel.findByIdAndDelete(postid);
+  console.log(postid);
+  res.redirect("/feed");
+});
+
+
+router.post('/changing', async (req, res) => {
+  try {
+    const user =  await userModel.findOne({username:req.session.passport.user})
+    const userId = req.user.id; // Assuming you use some form of authentication
+
+    // Retrieve the fields to be updated from the request body
+    const { name, contact } = req.body;
+
+    // Construct the update object only with provided details
+    const updateObject = {};
+    if (name) updateObject.name = name;
+    if (contact) updateObject.contact = contact;
+
+    // Find the user in the database and update their information
+    const updatedUser = await userModel.findByIdAndUpdate(
+        userId,
+        { $set: updateObject },
+        { new: true } // Return the updated document
+    ).populate('boards').populate('posts');
+    
+    res.redirect('/profile'); // Redirect to the profile page after updating
+} catch (err) {
+    console.error('Error updating user information:', err);
+    res.status(500).send(err.message);
+}
+});
+
 
 
 router.post("/register", function(req,res,next){

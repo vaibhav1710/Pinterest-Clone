@@ -3,20 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <link rel="icon" href=
+"/images/logo-color.png"
+          type="image/x-icon">
+  <title>Pinterest</title>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.7.0/fonts/remixicon.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
  <% if(nav==true){ %>
-  <div class="w-full px-10 py-3 flex text-white justify-between bg-zinc-800 items-center ">
-    <h3>Pinterest</h3>
-    <div class="flex gap-10 items-center">
-      <a href="/profile">Profile</a>
-      <a href="/feed">Feed</a>
-      <a class="px-3 py-2 bg-red-700 text-white rounded-lg" href="/logout">Logout</a>
+  <div class="w-full px-4 md:px-10 font-pop py-3 flex text-white justify-between bg-zinc-800 items-center relative">
+    <img class="w-18 h-10" src="/images/logo-no-background.png" alt="">
+
+    <!-- Responsive Toggle Button -->
+    <button id="toggleButton" class="block md:hidden text-white">
+      <i class="ri-menu-line text-2xl"></i>
+    </button>
+
+    <!-- Navigation Links (Visible on Medium Screens and Above) -->
+    <div id="navLinks" class="hidden md:flex gap-4 items-center">
+      <a href="/profile" class="text-sm md:text-base order-2">Profile</a>
+      <a href="/feed" class="text-sm md:text-base order-1">Feed</a>
+      <a class="px-2 md:px-3 py-1 md:py-2 bg-red-700 text-white rounded-lg text-xs md:text-base order-3" href="/logout">Logout</a>
+    </div>
+
+    <!-- Navigation Links Dropdown (Initially Hidden) -->
+    <div id="navDropdown" class="hidden p-2 text-white md:hidden absolute top-full left-0 mt-2 bg-black rounded-md shadow-md">
+      <a href="/profile" class="block py-2 text-sm border-gray-300">Profile</a>
+      <a href="/feed" class="block py-2 text-sm  border-gray-300">Feed</a>
+      <a class="block p-2 text-sm rounded-lg bg-red-700 " href="/logout">Logout</a>
     </div>
   </div>
+
+  <script>
+    document.getElementById('toggleButton').addEventListener('click', function() {
+      var navDropdown = document.getElementById('navDropdown');
+      navDropdown.classList.toggle('hidden');
+    });
+  </script>
 
 <% } %>
