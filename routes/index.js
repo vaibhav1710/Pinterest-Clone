@@ -6,7 +6,56 @@ const passport = require("passport");
 const boardModel = require("./boards");
 const localStrategy = require("passport-local");
 const upload = require("./multer");
+const crypto =  require("crypto");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { S3Client , PutObjectCommand, GetObjectCommand , DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const dotenv = require("dotenv");
 passport.use(new localStrategy(userModel.authenticate()));
+
+dotenv.config()
+
+const randomImageName = (bytes = 32) => crypto.randomBytes(16).toString('hex');
+
+const bucketName = process.env.BUCKET_NAME
+const bucketRegion = process.env.BUCKET_REGION
+const accessKey = process.env.ACCESS_KEY
+const secretAccessKey = process.env.SECRET_KEY
+
+const s3 = new S3Client({
+  region:bucketRegion,
+  credentials: {
+    accessKeyId : accessKey,
+    secretAccessKey : secretAccessKey,
+  },
+});
+
+router.post('/createpost', isLoggedIn , upload.single("postimage")  , async function(req, res, next) {
+  const user = await userModel.findOne({username:req.session.passport.user})
+
+   const imageName = randomImageName();
+   const params = {
+    Bucket : bucketName,
+    Key: imageName,
+    Body: req.file.buffer,
+    ContentType: req.file.mimetype
+   }
+  // console.log(params);
+   const command = new PutObjectCommand(params);
+   await s3.send(command)
+
+   const post = await  postModel.create({
+    user: user._id,
+    title:req.body.title,
+    description:req.body.description,
+    tags: req.body.tags,
+    image:imageName,
+  });
+
+  user.posts.push(post._id);
+  await user.save();
+
+   res.redirect("/profile");
+});
 
 
 /* GET home page. */
@@ -31,7 +80,29 @@ router.get('/profile', isLoggedIn , async function(req, res, next) {
                      })
                      .populate("posts");
                      
+   for(const post of user.posts){
+    const getObjectParams = {
+      Bucket : bucketName,
+      Key : post.image,
+    }
+ 
+    const command = new GetObjectCommand(getObjectParams);
+    const url = await getSignedUrl(s3,command, {expiresIn: 3600});
+    post.imageUrl = url;
+   }
+
+   for(const boards of user.boards){
+    for(const post of boards.posts){
+      const getObjectParams = {
+        Bucket : bucketName,
+        Key : post.image,
+      }
    
+      const command = new GetObjectCommand(getObjectParams);
+      const url = await getSignedUrl(s3,command, {expiresIn: 3600});
+      post.imageUrl = url;
+    }
+   }
                      
 
   res.render('profile',{user, nav:true});
@@ -41,6 +112,18 @@ router.get('/show/posts', isLoggedIn , async function(req, res, next) {
   const user = await userModel
                      .findOne({username:req.session.passport.user})
                      .populate("posts");
+
+                     for(const post of user.posts){
+                      const getObjectParams = {
+                        Bucket : bucketName,
+                        Key : post.image,
+                      }
+                   
+                      const command = new GetObjectCommand(getObjectParams);
+                      const url = await getSignedUrl(s3,command, {expiresIn: 3600});
+                      post.imageUrl = url;
+                     // console.log(post.imageUrl);
+                     }                 
                   
   res.render('show',{user, nav:true});
 });
@@ -48,6 +131,19 @@ router.get('/show/posts', isLoggedIn , async function(req, res, next) {
 router.get('/feed', isLoggedIn , async function(req, res, next) {
   const user = await userModel.findOne({username:req.session.passport.user}).populate("posts");
   const posts = await postModel.find().populate("user");
+  
+ // console.log(posts);
+  for(const post of posts){
+   const getObjectParams = {
+     Bucket : bucketName,
+     Key : post.image,
+   }
+
+   const command = new GetObjectCommand(getObjectParams);
+   const url = await getSignedUrl(s3,command, {expiresIn: 3600});
+   post.imageUrl = url;
+  // console.log(post.imageUrl);
+  }
   res.render("feed", {user, posts ,nav : true});
 });
 
@@ -80,26 +176,24 @@ router.post("/createboard", isLoggedIn, async function(req,res,next){
 })
 
 
-router.post('/createpost', isLoggedIn , upload.single("postimage")  , async function(req, res, next) {
-  const user = await userModel.findOne({username:req.session.passport.user})
-const post = await  postModel.create({
-     user: user._id,
-     title:req.body.title,
-     description:req.body.description,
-     tags: req.body.tags,
-     image:req.file.filename,
-   });
- 
-   user.posts.push(post._id);
-   await user.save();
-   res.redirect("/profile");
-});
+
 
 
 router.get("/board/:id" , async function(req,res,next){
   const boardId = req.params.id;
   const boards = await boardModel.findOne({_id:boardId}).populate("posts");
-
+  
+  for(const post of boards.posts){
+    const getObjectParams = {
+      Bucket : bucketName,
+      Key : post.image,
+    }
+ 
+    const command = new GetObjectCommand(getObjectParams);
+    const url = await getSignedUrl(s3,command, {expiresIn: 3600});
+    post.imageUrl = url;
+   // console.log(post.imageUrl);
+   }
  
   res.render("showboard", {nav:true,boards})
 })
@@ -119,13 +213,24 @@ router.post('/createboardpin/:id', isLoggedIn , upload.single("postimage")  , as
 const boardId = req.params.id;  
 const board = await boardModel.findOne({_id:boardId}); 
 const user = await userModel.findOne({username:req.session.passport.user})
+const imageName = randomImageName();
+const params = {
+ Bucket : bucketName,
+ Key: imageName,
+ Body: req.file.buffer,
+ ContentType: req.file.mimetype
+}
+// console.log(params);
+const command = new PutObjectCommand(params);
+await s3.send(command)
+
 const post = await  postModel.create({
-     user: user._id,
-     title:req.body.title,
-     description:req.body.description,
-     tags: req.body.tags,
-     image:req.file.filename,
-   });
+ user: user._id,
+ title:req.body.title,
+ description:req.body.description,
+ tags: req.body.tags,
+ image:imageName,
+});
  
    user.posts.push(post._id);
    board.posts.push(post._id);
@@ -151,6 +256,14 @@ router.get("/post/:id", isLoggedIn, async function(req,res,next){
   .findOne({ _id: postId })
   .populate("user");
 
+  const getObjectParams = {
+    Bucket : bucketName,
+    Key : post.image,
+  }
+
+  const command = new GetObjectCommand(getObjectParams);
+  const url = await getSignedUrl(s3,command, {expiresIn: 3600});
+  post.imageUrl = url;
 
   if (!post) {
     // Handle case when post is not found
@@ -162,20 +275,20 @@ router.get("/post/:id", isLoggedIn, async function(req,res,next){
 
 
 
-router.post('/createpost', isLoggedIn , upload.single("postimage")  , async function(req, res, next) {
-  const user = await userModel.findOne({username:req.session.passport.user})
-const post = await  postModel.create({
-     user: user._id,
-     title:req.body.title,
-     description:req.body.description,
-     tags: req.body.tags,
-     image:req.file.filename,
-   });
+// router.post('/createpost', isLoggedIn , upload.single("postimage")  , async function(req, res, next) {
+//   const user = await userModel.findOne({username:req.session.passport.user})
+// const post = await  postModel.create({
+//      user: user._id,
+//      title:req.body.title,
+//      description:req.body.description,
+//      tags: req.body.tags,
+//      image:req.file.filename,
+//    });
  
-   user.posts.push(post._id);
-   await user.save();
-   res.redirect("/profile");
-});
+//    user.posts.push(post._id);
+//    await user.save();
+//    res.redirect("/profile");
+// });
 
 
 router.delete("/delete/:id", isLoggedIn ,async (req,res) => {
@@ -184,13 +297,21 @@ router.delete("/delete/:id", isLoggedIn ,async (req,res) => {
    const post = await postModel.findById(postid);
    const user = await userModel.findOne({username:req.session.passport.user});
   
-   console.log(post);
-   console.log(user);
- 
+   if(!post){
+    res.status(404).send("Post Not Found");
+    return 
+   }
+
+   const params = {
+    Bucket : bucketName,
+    Key : post.image,
+  }
+
+  const command = new DeleteObjectCommand(params);
+  await s3.send(command)
    user.posts.pull(postid);
    await user.save();
    await postModel.findByIdAndDelete(postid);
-  console.log(postid);
   res.redirect("/feed");
 });
 
@@ -265,8 +386,32 @@ function isLoggedIn(req,res,next){
 
 router.post('/fileupload', isLoggedIn, upload.single("image") ,async function(req, res, next) {
 const user = await userModel.findOne({username:req.session.passport.user})
-user.profileImage = req.file.filename;
+
+const imageName = randomImageName();
+const params = {
+ Bucket : bucketName,
+ Key: imageName,
+ Body: req.file.buffer,
+ ContentType: req.file.mimetype
+}
+// console.log(params);
+let command = new PutObjectCommand(params);
+await s3.send(command)
+
+const getObjectParams = {
+  Bucket : bucketName,
+  Key : imageName,
+}
+
+command = new GetObjectCommand(getObjectParams);
+const url = await getSignedUrl(s3,command, {expiresIn: 3600});
+
+user.profileImage = url;
 await user.save();
+
+
+
+
 res.redirect("/profile");
 })
 
