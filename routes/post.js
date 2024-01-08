@@ -9,6 +9,7 @@ const postSchema = mongoose.Schema({
   title:String,
   description:String,
   image:String,
+  imageUrl: String,
   tags: {
     type: String,
   },
