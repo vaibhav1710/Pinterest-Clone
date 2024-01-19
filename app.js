@@ -7,6 +7,7 @@ var logger = require('morgan');
 const expressSession = require("express-session");
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+const flash = require("connect-flash");
 const passport = require("passport");
 var app = express();
 
@@ -19,7 +20,7 @@ app.use(expressSession({
   saveUninitialized: false,
   secret: "hey hey"
 }));
-
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.serializeUser(usersRouter.serializeUser());
