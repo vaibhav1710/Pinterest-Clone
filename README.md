@@ -73,11 +73,11 @@ Follow these steps to set up and run the Pinterest Clone locally:
 
 Here are a few screenshots of the Pinterest Clone:
 
- ![Login Page](screenshots/screenshot(306).png)
+ ![Login Page](https://github.com/vaibhav1710/Pinterest-Clone/blob/master/Screenshots/Screenshot%20(306).png)
 
-![User Profile](screenshots/screenshot(308).png)
+![User Profile](https://github.com/vaibhav1710/Pinterest-Clone/blob/master/Screenshots/Screenshot%20(307).png)
 
-![View Post](screenshots/screenshot(307).png)
+![View Post](https://github.com/vaibhav1710/Pinterest-Clone/blob/master/Screenshots/Screenshot%20(308).png)
 
 Feel free to explore, upload images, and enjoy the Pinterest Clone experience!
 
