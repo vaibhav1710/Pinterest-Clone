@@ -398,7 +398,7 @@ router.put("/changing", async (req, res) => {
     if (contact) updateObject.contact = contact;
 
     // Find the user in the database and update their information
-    const updatedUser = await userModel
+    const updatedUser  = await userModel
       .findByIdAndUpdate(
         userId,
         { $set: updateObject },
