@@ -11,6 +11,14 @@
   - User account creation.
   - Image upload, view, and delete functionalities.
   - Explore and view posts uploaded by other users.
+ 
+
+
+## Postman Collection
+
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/30722641-ebcc5844-d6b7-4ce6-bc73-d07ff06f1f3d?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D30722641-ebcc5844-d6b7-4ce6-bc73-d07ff06f1f3d%26entityType%3Dcollection%26workspaceId%3Ddab268f4-03ca-44b0-b588-eabd1d433d2c)
+
+
 
 
 ## Setup Instructions
