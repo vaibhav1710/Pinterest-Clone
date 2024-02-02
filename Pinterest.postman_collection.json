@@ -1,0 +1,182 @@
+{
+	"info": {
+		"_postman_id": "ebcc5844-d6b7-4ce6-bc73-d07ff06f1f3d",
+		"name": "Pinterest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "30722641"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "posttest",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "posttest",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "posttest@yahoo.com",
+							"type": "text"
+						},
+						{
+							"key": "fullname",
+							"value": "Post Test",
+							"type": "text"
+						},
+						{
+							"key": "contact",
+							"value": "876543129",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost:3000/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Feed",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"password": "postman",
+						"username": "postman"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:3000/feed"
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"posttest\",\r\n    \"password\":\"posttest\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/login"
+			},
+			"response": []
+		},
+		{
+			"name": "View Post",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/post/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"post",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreatePost",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "postimage",
+							"type": "file",
+							"src": "/D:/vaibh/Two.png"
+						},
+						{
+							"key": "title",
+							"value": "Two Nodes",
+							"type": "text"
+						},
+						{
+							"key": "tags",
+							"value": "Logo Youtube",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost:3000/createpost"
+			},
+			"response": []
+		},
+		{
+			"name": "DeletePost",
+			"request": {
+				"auth": {
+					"type": "awsv4",
+					"awsv4": {
+						"region": "ap-south-1",
+						"secretKey": "0eawPtxNPCwkAiktQGwAYQQW29w2pKMfLxYl81Aj",
+						"accessKey": "AKIA2N2EB3N7JA75QU7Z"
+					}
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:3000/delete/65bd37fc124ef06cec6abc6a"
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Info",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "name",
+							"value": "Vaibhav",
+							"type": "text"
+						},
+						{
+							"key": "contact",
+							"value": "887776655677",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost:3000/changing"
+			},
+			"response": []
+		}
+	]
+}

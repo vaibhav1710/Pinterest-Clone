@@ -188,7 +188,7 @@ router.get("/feed", isLoggedIn, async function (req, res, next) {
 
   // Populate signed URLs for each post's image from S3
   for (const post of posts) {
-    const getObjectParams = {
+    const getObjectParams = { 
       Bucket: bucketName,
       Key: post.image,
     };
@@ -352,7 +352,7 @@ router.get("/post/:id", isLoggedIn, async function (req, res, next) {
 });
 
 // Route for deleting a Pins
-router.delete("/delete/:id", isLoggedIn, async (req, res) => {
+router.delete("/delete/:id", isLoggedIn, async (req, res) => { 
   const postid = req.params.id;
   const post = await postModel.findById(postid);
   // Find the user in the database based on the authenticated session
@@ -381,7 +381,7 @@ router.delete("/delete/:id", isLoggedIn, async (req, res) => {
 });
 
 // Route for updating user information
-router.post("/changing", async (req, res) => {
+router.put("/changing", async (req, res) => {
   try {
     // Retrieve the authenticated user's username from the session
     const user = await userModel.findOne({
